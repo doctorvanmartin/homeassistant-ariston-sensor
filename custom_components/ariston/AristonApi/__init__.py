@@ -1,0 +1,103 @@
+import requests
+from datetime import timedelta
+from logging import getLogger
+from homeassistant.util import Throttle
+
+_LOGGER = getLogger(__name__)
+
+from homeassistant.components.weather import (
+    ATTR_WEATHER_TEMPERATURE
+)
+from homeassistant.const import (
+    HTTP_OK
+)
+
+
+ATTR_ROOM_TEMPERATURE = 'room_temperature'
+ATTR_ROOM_TEMPERATURE_SET = 'room_temperature_set'
+ATTR_ACS_TEMPERATURE = 'acs_temperature'
+ATTR_ACS_TEMPERATURE_SET = 'acs_temperature_set'
+ATTR_HEAT_PUMP_ON = 'heat_pump_on'
+ATTR_EXTERNAL_TEMPERATURE = 'external_temperature'
+ATTR_LAST_UPDATE = 'last_update'
+CONF_DEVICE_ID = 'device_id'
+
+MIN_TIME_BETWEEN_UPDATES = timedelta(seconds=240)
+
+class AristonApi:
+    """Get the lastest data and updates the states."""
+    
+    API_URL_BASE = 'https://www.ariston-net.remotethermo.com/Account/Login?returnUrl='
+    API_URL_NEGOTIATE = '/broker/negotiate?clientProtocol=1.5&ar.gateway={}'
+    API_URL_DATA_DETAIL = '%2FPlantDashboard%2FGetPlantData%2F{}%3FzoneNum%3D%257B0%257D%26umsys%3Dsi%26firstRoundTrip%3Dtrue%26twoPhaseRefresh%3Dtrue%26completionToken%3D{}'
+
+    def __init__(self, username, password, device_id):
+        """Initialize the data object."""
+        self._username = username
+        self._password = password
+        self._device_id = device_id
+        self.data = {}
+
+    @Throttle(MIN_TIME_BETWEEN_UPDATES)
+    def update(self):
+        """Fetch new state data for the sensor."""
+        _LOGGER.debug("------- Updating Ariston sensor")
+        
+        # Get the completion token
+        completion_token_url = "{}{}".format(
+                            self.API_URL_BASE,
+                            self.API_URL_NEGOTIATE.format(self._device_id)
+                        )
+        _LOGGER.debug("Completion token URL: %s", completion_token_url)
+        payload = {'Email': self._username, 'Password': self._password}
+        main_rsp = requests.post(completion_token_url, data=payload)
+        if main_rsp.status_code != HTTP_OK:
+            _LOGGER.error("Invalid response: %s", main_rsp.status_code)
+            return
+
+        result = main_rsp.json()
+        if "ConnectionId" in result:
+            completion_token = result["ConnectionId"]
+            _LOGGER.debug("Completion token: %s", completion_token)
+            # Get the data
+            data_url = "{}{}".format(
+                            self.API_URL_BASE,
+                            self.API_URL_DATA_DETAIL.format(self._device_id,completion_token)
+                        )
+            _LOGGER.debug("Data URL: %s", data_url)
+            
+            data_rsp = requests.post(data_url, data=payload)
+            
+            if data_rsp.status_code != HTTP_OK:
+                _LOGGER.error("Invalid response: %s", data_rsp.status_code)
+            data_result = data_rsp.json()
+            self.set_data(data_result)
+            _LOGGER.debug("JSON response: %s",data_result)
+        else:
+            _LOGGER.error("Invalid response: %s", main_rsp.status_code)
+
+    def set_data(self, record):
+        """Set data using the last record from API."""
+        state = {}
+        if 'zone' in record:
+            zone = record['zone']
+            if 'roomTemp' in zone:
+                state[ATTR_ROOM_TEMPERATURE] = zone['roomTemp']
+            if 'comfortTemp' in zone:
+                if 'value' in zone['comfortTemp']:
+                    state[ATTR_ROOM_TEMPERATURE_SET] =  zone["comfortTemp"]["value"]
+        if 'dhwStorageTemp' in record:
+            state[ATTR_ACS_TEMPERATURE] = record["dhwStorageTemp"]
+        if 'dhwTemp' in record:
+            if 'value' in record['dhwTemp']:
+                state[ATTR_ACS_TEMPERATURE_SET] = record['dhwTemp']['value']
+        if 'heatingPumpOn' in record:
+            state[ATTR_HEAT_PUMP_ON] = record['heatingPumpOn']
+        if 'outsideTemp' in record:
+            state[ATTR_EXTERNAL_TEMPERATURE] = record['outsideTemp']
+            
+        self.data = state
+
+    def get_data(self, variable):
+        """Get the data."""
+        return self.data.get(variable)
