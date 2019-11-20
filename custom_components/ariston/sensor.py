@@ -1,5 +1,5 @@
 """
-Sensor support for Ariston NET machines.
+Sensor support for Ariston NET devices.
 """
 
 DOMAIN='ariston'
