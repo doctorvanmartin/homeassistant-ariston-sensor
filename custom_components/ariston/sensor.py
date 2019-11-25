@@ -60,6 +60,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
     aristonApi = AristonApi(username=username, password=password, device_id=device_id)
     try:
+        #Añadir tiempo para tener conexión, o validarlo en bucle
         aristonApi.update()
     except (ValueError, TypeError) as err:
         _LOGGER.error("Received error from Ariston: %s", err)
