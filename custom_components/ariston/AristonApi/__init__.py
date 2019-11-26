@@ -12,6 +12,11 @@ from homeassistant.const import (
     HTTP_OK
 )
 
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
+
+
+
 
 ATTR_ROOM_TEMPERATURE = 'room_temperature'
 ATTR_ROOM_TEMPERATURE_SET = 'room_temperature_set'
@@ -30,6 +35,26 @@ class AristonApi:
     API_URL_BASE = 'https://www.ariston-net.remotethermo.com/Account/Login?returnUrl='
     API_URL_NEGOTIATE = '/broker/negotiate?clientProtocol=1.5&ar.gateway={}'
     API_URL_DATA_DETAIL = '%2FPlantDashboard%2FGetPlantData%2F{}%3FzoneNum%3D%257B0%257D%26umsys%3Dsi%26firstRoundTrip%3Dtrue%26twoPhaseRefresh%3Dtrue%26completionToken%3D{}'
+
+    def requests_retry_session( self,
+        retries=3,
+        backoff_factor=5,
+        status_forcelist=(500, 502, 504),
+        session=None,
+    ):
+        session = session or requests.Session()
+        retry = Retry(
+            total=retries,
+            read=retries,
+            connect=retries,
+            backoff_factor=backoff_factor,
+            method_whitelist=frozenset(['GET', 'POST']),
+            status_forcelist=status_forcelist,
+        )
+        adapter = HTTPAdapter(max_retries=retry)
+        session.mount('http://', adapter)
+        session.mount('https://', adapter)
+        return session
 
     def __init__(self, username, password, device_id):
         """Initialize the data object."""
@@ -50,7 +75,9 @@ class AristonApi:
                         )
         _LOGGER.debug("Completion token URL: %s", completion_token_url)
         payload = {'Email': self._username, 'Password': self._password}
-        main_rsp = requests.post(completion_token_url, data=payload)
+        
+        main_rsp = self.requests_retry_session().post(completion_token_url, data=payload)
+        
         if main_rsp.status_code != HTTP_OK:
             _LOGGER.error("Invalid response: %s", main_rsp.status_code)
             return

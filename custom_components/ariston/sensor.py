@@ -20,7 +20,6 @@ from homeassistant.const import (
 
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity import Entity
-from homeassistant.exceptions import PlatformNotReady
 
 from .AristonApi import (
     AristonApi,
@@ -60,12 +59,13 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     device_id = config.get(CONF_DEVICE_ID)
 
     aristonApi = AristonApi(username=username, password=password, device_id=device_id)
-    
-    aristonApi.update()
-        
-    if aristonApi.data is None:
-        raise PlatformNotReady
-    
+    try:
+        #Añadir tiempo para tener conexión, o validarlo en bucle
+        aristonApi.update()
+    except (ValueError, TypeError) as err:
+        _LOGGER.error("Received error from Ariston: %s", err)
+        return False
+
     add_entities( [ AristonSensor(aristonApi, variable, name) for variable in SENSOR_TYPES], True)
 
 
