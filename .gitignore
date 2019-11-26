@@ -113,3 +113,5 @@ ehthumbs.db
 Thumbs.db
 .storage
 .config
+/.project
+/.pydevproject
