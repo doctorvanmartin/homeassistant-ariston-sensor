@@ -52,7 +52,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Required(CONF_PASSWORD): cv.string,
 })
 
-async def async_setup_platform(hass, config, add_entities, discovery_info=None):
+def setup_platform(hass, config, add_entities, discovery_info=None):
     """Set up the sensor platform."""
     name = config.get(CONF_NAME)
     username = config.get(CONF_USERNAME)
@@ -60,15 +60,12 @@ async def async_setup_platform(hass, config, add_entities, discovery_info=None):
     device_id = config.get(CONF_DEVICE_ID)
 
     aristonApi = AristonApi(username=username, password=password, device_id=device_id)
-    try:
-        #Añadir tiempo para tener conexión, o validarlo en bucle
-        aristonApi.update()
-    except (ValueError, TypeError) as err:
-        _LOGGER.error("Received error from Ariston: %s", err)
+    
+    aristonApi.update()
         
-        if aristonApi.data is None:
-            raise PlatformNotReady
-
+    if aristonApi.data is None:
+        raise PlatformNotReady
+    
     add_entities( [ AristonSensor(aristonApi, variable, name) for variable in SENSOR_TYPES], True)
 
 
