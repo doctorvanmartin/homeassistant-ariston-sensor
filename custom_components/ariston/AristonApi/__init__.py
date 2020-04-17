@@ -1,5 +1,5 @@
 import requests
-from datetime import timedelta
+from datetime import timedelta, datetime
 from logging import getLogger
 from homeassistant.util import Throttle
 
@@ -21,6 +21,7 @@ ATTR_HEAT_PUMP_ON = 'heat_pump_on'
 ATTR_EXTERNAL_TEMPERATURE = 'external_temperature'
 ATTR_LAST_UPDATE = 'last_update'
 CONF_DEVICE_ID = 'device_id'
+ATTR_HEAT_PUMP_RESISTOR_ON = 'heat_pump_resistor_on' #heatingPumpResistorOn	
 
 MIN_TIME_BETWEEN_UPDATES = timedelta(seconds=240)
 
@@ -95,6 +96,9 @@ class AristonApi:
             state[ATTR_HEAT_PUMP_ON] = record['heatingPumpOn']
         if 'outsideTemp' in record:
             state[ATTR_EXTERNAL_TEMPERATURE] = record['outsideTemp']
+
+        # Timestampp
+        state[ATTR_LAST_UPDATE] = datetime.now()
             
         self.data = state
 
