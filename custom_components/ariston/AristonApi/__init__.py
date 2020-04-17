@@ -98,7 +98,7 @@ class AristonApi:
             state[ATTR_EXTERNAL_TEMPERATURE] = record['outsideTemp']
 
         # Timestampp
-        state[ATTR_LAST_UPDATE] = datetime.now()
+        state[ATTR_LAST_UPDATE] = datetime.now().strftime("%H:%M:%S %d/%m/%Y")
             
         self.data = state
 
