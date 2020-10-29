@@ -17,7 +17,7 @@ from requests.packages.urllib3.util.retry import Retry
 
 
 
-
+ATTR_MODE = 'mode'
 ATTR_ROOM_TEMPERATURE = 'room_temperature'
 ATTR_ROOM_TEMPERATURE_SET = 'room_temperature_set'
 ATTR_ACS_TEMPERATURE = 'acs_temperature'
@@ -107,6 +107,15 @@ class AristonApi:
     def set_data(self, record):
         """Set data using the last record from API."""
         state = {}
+        if 'mode' in record:
+            if record['mode'] == 0:
+                state[ATTR_MODE] = 'summer'
+            elif record['mode'] == 1:
+                state[ATTR_MODE] = 'winter'
+            elif record['mode'] == 5:
+                state[ATTR_MODE] = 'off'
+            else:
+                state[ATTR_MODE] = record['mode']
         if 'zone' in record:
             zone = record['zone']
             if 'roomTemp' in zone:

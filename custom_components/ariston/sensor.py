@@ -23,6 +23,7 @@ from homeassistant.helpers.entity import Entity
 
 from .AristonApi import (
     AristonApi,
+    ATTR_MODE,
     ATTR_ROOM_TEMPERATURE,
     ATTR_ROOM_TEMPERATURE_SET,
     ATTR_ACS_TEMPERATURE,
@@ -36,6 +37,7 @@ from .AristonApi import (
 DEFAULT_NAME = 'Ariston NET'
 
 SENSOR_TYPES = {
+    ATTR_MODE: ['Mode', None, 'mdi:thermostat'],
     ATTR_ROOM_TEMPERATURE: ['Room temperature', TEMP_CELSIUS, 'mdi:thermometer'],
     ATTR_ROOM_TEMPERATURE_SET: ['Room set', TEMP_CELSIUS, 'mdi:thermometer'],
     ATTR_ACS_TEMPERATURE: ['ACS temperature', TEMP_CELSIUS, 'mdi:thermometer'],
@@ -102,6 +104,7 @@ class AristonSensor(Entity):
     def device_state_attributes(self):
         """Return the device state attributes."""
         return {
+            ATTR_MODE: self._aristonApi.get_data(ATTR_MODE),
             ATTR_ROOM_TEMPERATURE: self._aristonApi.get_data(ATTR_ROOM_TEMPERATURE),
             ATTR_ROOM_TEMPERATURE_SET: self._aristonApi.get_data(ATTR_ROOM_TEMPERATURE_SET),
             ATTR_ACS_TEMPERATURE: self._aristonApi.get_data(ATTR_ACS_TEMPERATURE),
