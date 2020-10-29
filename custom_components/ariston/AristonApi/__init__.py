@@ -109,9 +109,13 @@ class AristonApi:
         state = {}
         if 'mode' in record:
             if record['mode'] == 0:
-                state[ATTR_MODE] = 'summer'
+                state[ATTR_MODE] = 'dhw'
             elif record['mode'] == 1:
-                state[ATTR_MODE] = 'winter'
+                state[ATTR_MODE] = 'heating & dhw'
+            elif record['mode'] == 2:
+                state[ATTR_MODE] = 'heating only'
+            elif record['mode'] == 3:
+                state[ATTR_MODE] = 'cooling & dhw'
             elif record['mode'] == 5:
                 state[ATTR_MODE] = 'off'
             else:
