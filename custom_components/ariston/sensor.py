@@ -34,7 +34,8 @@ from .AristonApi import (
     CONF_DEVICE_ID,
     ATTR_HEAT_PUMP_RESISTOR_ON,
     ATTR_HOLIDAY_ENABLED,
-    ATTR_ANTIFREEZE_TEMP
+    ATTR_ANTIFREEZE_TEMP,
+    ATTR_FLAME
 )
 
 DEFAULT_NAME = 'Ariston NET'
@@ -50,6 +51,7 @@ SENSOR_TYPES = {
     ATTR_HEAT_PUMP_RESISTOR_ON: ['Heat pump resistor on?', 'booleano', 'mdi:resistor'],
     ATTR_HOLIDAY_ENABLED:['Holiday enabled?', 'booleano', 'mdi:beach'],
     ATTR_ANTIFREEZE_TEMP: ['Anti freeze temperature', TEMP_CELSIUS, 'mdi:thermometer'],
+    ATTR_FLAME: ['Flame', None, 'mdi:fire'],
 }
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
@@ -122,6 +124,7 @@ class AristonSensor(Entity):
             ATTR_HEAT_PUMP_RESISTOR_ON: self._aristonApi.get_data(ATTR_HEAT_PUMP_RESISTOR_ON),
             ATTR_HOLIDAY_ENABLED: self._aristonApi.get_data(ATTR_HOLIDAY_ENABLED),
             ATTR_ANTIFREEZE_TEMP: self._aristonApi.get_data(ATTR_ANTIFREEZE_TEMP), 
+            ATTR_FLAME: self._aristonApi.get_data(ATTR_FLAME), 
         }
 
     def update(self):
