@@ -30,6 +30,7 @@ ATTR_HEAT_PUMP_RESISTOR_ON = 'heat_pump_resistor_on' #heatingPumpResistorOn
 ATTR_HOLIDAY_ENABLED = "holidayEnabled"
 ATTR_HOLIDAY_UNTIL = "holidayUntil"
 ATTR_ANTIFREEZE_TEMP = "antiFreezeTemp"
+ATTR_FLAME = 'flame'
 
 MIN_TIME_BETWEEN_UPDATES = timedelta(seconds=240)
 
@@ -145,6 +146,8 @@ class AristonApi:
             state[ATTR_HEAT_PUMP_ON] = record['heatingPumpOn']
         if 'outsideTemp' in record:
             state[ATTR_EXTERNAL_TEMPERATURE] = record['outsideTemp']
+        if 'flameSensor' in record:
+            state[ATTR_FLAME] = record['flameSensor']
 
         # Timestampp
         state[ATTR_LAST_UPDATE] = datetime.now().strftime("%H:%M:%S %d/%m/%Y")
