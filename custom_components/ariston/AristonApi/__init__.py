@@ -27,6 +27,9 @@ ATTR_EXTERNAL_TEMPERATURE = 'external_temperature'
 ATTR_LAST_UPDATE = 'last_update'
 CONF_DEVICE_ID = 'device_id'
 ATTR_HEAT_PUMP_RESISTOR_ON = 'heat_pump_resistor_on' #heatingPumpResistorOn	
+ATTR_HOLIDAY_ENABLED = "holidayEnabled"
+ATTR_HOLIDAY_UNTIL = "holidayUntil"
+ATTR_ANTIFREEZE_TEMP = "antiFreezeTemp"
 
 MIN_TIME_BETWEEN_UPDATES = timedelta(seconds=240)
 
@@ -124,9 +127,15 @@ class AristonApi:
             zone = record['zone']
             if 'roomTemp' in zone:
                 state[ATTR_ROOM_TEMPERATURE] = zone['roomTemp']
+            if ATTR_ANTIFREEZE_TEMP in zone:
+                state[ATTR_ANTIFREEZE_TEMP] = zone[ATTR_ANTIFREEZE_TEMP]
             if 'comfortTemp' in zone:
                 if 'value' in zone['comfortTemp']:
                     state[ATTR_ROOM_TEMPERATURE_SET] =  zone["comfortTemp"]["value"]
+        if ATTR_HOLIDAY_ENABLED in record:
+            state[ATTR_HOLIDAY_ENABLED] = record[ATTR_HOLIDAY_ENABLED]
+        if ATTR_HEAT_PUMP_RESISTOR_ON in record:
+            state[ATTR_HEAT_PUMP_RESISTOR_ON] = record[ATTR_HEAT_PUMP_RESISTOR_ON]
         if 'dhwStorageTemp' in record:
             state[ATTR_ACS_TEMPERATURE] = record["dhwStorageTemp"]
         if 'dhwTemp' in record:
