@@ -114,11 +114,11 @@ class AristonApi:
             if record['mode'] == 0:
                 state[ATTR_MODE] = 'dhw'
             elif record['mode'] == 1:
-                state[ATTR_MODE] = 'heating & dhw'
+                state[ATTR_MODE] = 'heating_dhw'
             elif record['mode'] == 2:
-                state[ATTR_MODE] = 'heating only'
+                state[ATTR_MODE] = 'heating'
             elif record['mode'] == 3:
-                state[ATTR_MODE] = 'cooling & dhw'
+                state[ATTR_MODE] = 'cooling_dhw'
             elif record['mode'] == 5:
                 state[ATTR_MODE] = 'off'
             else:
