@@ -1,4 +1,9 @@
 # homeassistant-ariston-sensor
+
+
+Now moving to https://github.com/julupanter/ariston-remotethermo-home-assistant-v2 a fork of chomupashchuk adapted to work directly with HACS. It has configurable sensors, climate and other and gives services to write data, not only read.
+
+
 Ariston Net integration with home assistant, for devices using the Ariston Sensys thermostats or similar devices that connect to the ariston remotethermo app https://www.ariston-net.remotethermo.com , also called Ariston Net (apk for mobile devices).
 
 This plugin will add sensors for the main controlled data, and need a configuration in the configuration.yaml file like:
